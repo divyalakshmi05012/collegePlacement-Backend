@@ -1,5 +1,5 @@
 import applicationModel from '../models/application.js'
-import path from 'path';
+
 
 const createApplication = async (req, res) => {
   try {

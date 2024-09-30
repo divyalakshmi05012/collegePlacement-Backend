@@ -1,5 +1,4 @@
 import interviewModel from "../models/interview.js";
-import userModel from "../models/user.js";
 import nodemailer from 'nodemailer'
 import 'dotenv/config'
 import studentModel from "../models/student.js";

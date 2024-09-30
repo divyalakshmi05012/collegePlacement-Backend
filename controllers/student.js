@@ -1,6 +1,5 @@
 import studentModel from "../models/student.js";
 import userModel from "../models/user.js";
-import multer from 'multer';
 import auth from "../common/auth.js";
 
 
