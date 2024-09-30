@@ -1,8 +1,6 @@
 import mongoose from 'mongoose'
-import { validateEmail,validateMobile } from "../common/valdations.js";
-import jobPosting from '../controllers/jobPosting.js';
 
-const jobScheema = new mongoose.Schema({
+const jobSchema = new mongoose.Schema({
     title:{
         type:String,
         required:true
@@ -11,7 +9,7 @@ const jobScheema = new mongoose.Schema({
         type:String,
         required:true
     },
-    jobId:{
+    jobPostingId:{
         type:String,
         required:true
     },
@@ -40,7 +38,7 @@ const jobScheema = new mongoose.Schema({
     versionKey:false
 })
 
-const jobModel = new mongoose.model('JobPortal',jobScheema)
+const jobModel = new mongoose.model('JobPortal',jobSchema)
 
 export default jobModel
 

@@ -61,8 +61,8 @@ const getAllInterviews = async (req, res) => {
   try {
     // Retrieve all interviews from the database
     const interviews = await interviewModel.find()
-      .populate('studentId') // Populate student details
-      .populate('companyId') // Populate company details
+      .populate('studentId') 
+      .populate('companyId') 
       .exec();
 
     // Send back the list of interviews

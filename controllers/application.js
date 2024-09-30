@@ -53,11 +53,9 @@ const createApplication = async (req, res) => {
 const getApplicationById= async(req,res)=>{
     try {
         const { studentId } = req.params;
-        console.log('Received studentId:', studentId); 
         const application = await applicationModel.findOne({studentId})
           .populate('jobPostingId')  
           .exec();
-    console.log(application)
         if (!application) {
           return res.status(404).send({
             message: 'Application not found',
@@ -68,6 +66,7 @@ const getApplicationById= async(req,res)=>{
         res.status(200).json({
           message: 'Application retrieved successfully',
           data: application,
+         
         });
       } catch (error) {
         res.status(500).send({
