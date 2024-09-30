@@ -3,21 +3,21 @@ import path from 'path';
 
 const createApplication = async (req, res) => {
   try {
-      const { applicationId, studentId, studentName,jobId, status } = req.body;
+      const { applicationId, studentId, studentName,jobPostingId, status } = req.body;
 
       // Extract file paths from uploaded files
       const resume = req.files['resume'] ? req.files['resume'][0].path : null;
       const coverLetter = req.files['coverLetter'] ? req.files['coverLetter'][0].path : null;
 
       // Validate required fields
-      if (!studentId || !studentName || !jobId || !resume) {
+      if (!studentId || !studentName || !jobPostingId || !resume) {
           return res.status(400).send({
               message: 'Missing required fields: studentId, studentName, jobId, and resume are mandatory.',
           });
       }
 
       // Check for existing application
-      const existingApplication = await applicationModel.findOne({ studentId, jobId });
+      const existingApplication = await applicationModel.findOne({ studentId, jobPostingId });
       if (existingApplication) {
           return res.status(409).send({
               message: 'Application already exists for this job posting',
@@ -29,7 +29,7 @@ const createApplication = async (req, res) => {
         applicationId,
           studentId,
           studentName,
-          jobId,
+          jobPostingId,
           resume,
           coverLetter,
           status: status || 'pending', // Default to 'pending' if status is not provided
@@ -121,11 +121,46 @@ const updateStatus=async (req, res) => {
     res.status(500).json({ error: 'Internal server error' });
   }
 };
+const getApplicationsByCompany = async (req, res) => {
+  try {
+      const { jobPostingId } = req.params;
+
+      // Validate jobPostingId
+      if (!jobPostingId) {
+          return res.status(400).send({
+              message: 'jobPostingId is required.',
+          });
+      }
+
+      // Find applications by jobPostingId
+      const applications = await applicationModel.find({ jobPostingId })
+          .populate('studentId') 
+          .exec();
+
+      if (!applications || applications.length === 0) {
+          return res.status(404).send({
+              message: 'No applications found for this job posting',
+          });
+      }
+
+      // Send the applications data
+      res.status(200).json({
+          message: 'Applications retrieved successfully',
+          data: applications,
+      });
+  } catch (error) {
+      res.status(500).send({
+          message: error.message || 'Internal Server Error',
+          error,
+      });
+  }
+};
 
 
 export default{
     createApplication,
     getApplicationById,
     getAllApplications,
-    updateStatus
+    updateStatus,
+    getApplicationsByCompany
 }
