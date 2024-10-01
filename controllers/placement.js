@@ -30,9 +30,9 @@ const createPlacement = async(req,res)=>{
 const getAllPlacement = async (req, res) => {
   try {
       const drives = await PlacementModel.find()
-          .populate('companies','companyName') // Adjust these fields if necessary
+          .populate('companies','companyName')
           .populate('participants', 'name')
-          .populate('interviews') // Populate interviews if needed
+          .populate('interviews') 
           .exec();
 
       res.status(200).send({
@@ -40,10 +40,10 @@ const getAllPlacement = async (req, res) => {
           data: drives
       });
   } catch (error) {
-      console.error('Error fetching placement drives:', error); // Log the error
+      console.error('Error fetching placement drives:', error); 
       res.status(500).send({
           message: 'Failed to fetch placement drives',
-          error: error.message // Include error message in response
+          error: error.message 
       });
   }
 };

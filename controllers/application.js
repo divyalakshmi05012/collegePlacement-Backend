@@ -54,7 +54,7 @@ const getApplicationById= async(req,res)=>{
     try {
         const { studentId } = req.params;
         const application = await applicationModel.findOne({studentId})
-          .populate('jobPostingId')  
+          .populate('jobPostingId','jobPostingId')  
           .exec();
         if (!application) {
           return res.status(404).send({

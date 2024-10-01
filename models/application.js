@@ -20,7 +20,8 @@ const applicationSchema = new mongoose.Schema({
     },
     jobPostingId:[{
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'JobPortal' 
+        ref: 'JobPortal',
+        required:true
  }],
     resume:{
          type: String,
