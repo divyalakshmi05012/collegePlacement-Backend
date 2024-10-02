@@ -14,29 +14,20 @@ const applicationSchema = new mongoose.Schema({
         type: String,
         required:true
     },
-    jobId:{
+    jobPostingId:{
         type:String,
         required:true
     },
-    jobPostingId:[{
+    jobPostId:{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'JobPortal',
-        required:true
- }],
+ },
     resume:{
          type: String,
          required: true 
     },  
     coverLetter:{
          type: String 
-    },
-    status:{
-        type:String,
-        enum: {
-            values: ['submitted', 'reviewed', 'shortlisted', 'rejected', 'accepted'],
-            default: 'submitted',
-            message: '{VALUE} is not supported'
-          }
     },
     appliedDate:{ 
         type: Date, 

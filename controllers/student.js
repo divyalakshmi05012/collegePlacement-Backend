@@ -7,21 +7,16 @@ const register=async(req,res)=>{
     try {
         const { name, email, password,role, studentId ,course} = req.body;
     
-        // Hash the password
         const hashedPassword = await auth.hashPassword(req.body.password);
     
-        // Create a new student
         const newStudent = new studentModel({
           name,
           email,
           password: hashedPassword,
           role,
           studentId ,
-          // Ensure studentId is captured during registration
           course
         });
-    
-        // Save the student to the database
         await newStudent.save();
         res.status(201).send({
             message:"student registered successfully",
@@ -39,7 +34,6 @@ const login = async(req,res)=>{
         let user = await userModel.findOne({email:req.body.email});
         if(user)
         {
-            //validate pwd
             if(await auth.hashCompare(req.body.password,user.password))
             {
                 let payload = {
@@ -97,8 +91,10 @@ const getAllStudent= async (req,res)=>{
     }
 }
 
+
+
 export default {
    register,
    login,
-   getAllStudent
+   getAllStudent,
 }

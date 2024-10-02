@@ -9,8 +9,7 @@ const router=Router()
  router.post('/apply' ,upload.fields([{ name: 'resume' }, { name: 'coverLetter' }]),applicationController.createApplication)
  router.get('/getApplication/:studentId',verify,applicationController.getApplicationById)
  router.get('/getAllApplication',applicationController.getAllApplications)
- router.patch('/update-status/:applicationId',applicationController.updateStatus)
- router.get('/applications/jobPosting/:jobPostingId',applicationController.getApplicationsByCompany)
+ router.get('/companyApplication',applicationController.getApplicationsByCompany)
 
 
  export default router

@@ -8,6 +8,7 @@ const router=Router()
  router.post('/login',studentController.login)
  router.get('/getAllStudent',verifyAdmin,studentController.getAllStudent)
  
+ 
 
 
  export default router

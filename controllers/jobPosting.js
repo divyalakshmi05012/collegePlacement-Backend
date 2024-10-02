@@ -3,12 +3,12 @@ import jobModel from '../models/jobPortal.js'
 
 const createJobPosting= async(req,res)=>{
     try {
-        const {title, company,jobId, location, description, requirements, salary} = req.body
+        const {title, company,jobPostingId, location, description, requirements, salary} = req.body
 
         const newJobPosting = new jobModel({
            title,
           company,
-          jobId,
+          jobPostingId,
           location,
           description,
           requirements,

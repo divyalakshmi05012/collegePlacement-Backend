@@ -1,60 +1,67 @@
 import applicationModel from '../models/application.js'
+import jobModel from '../models/jobPortal.js'
 
 
 const createApplication = async (req, res) => {
   try {
-      const { applicationId, studentId, studentName,jobPostingId, status } = req.body;
+    const { applicationId, studentId, studentName, jobPostingId } = req.body;
 
-      // Extract file paths from uploaded files
-      const resume = req.files['resume'] ? req.files['resume'][0].path : null;
-      const coverLetter = req.files['coverLetter'] ? req.files['coverLetter'][0].path : null;
+    const resume = req.files['resume'] ? req.files['resume'][0].path : null;
+    const coverLetter = req.files['coverLetter'] ? req.files['coverLetter'][0].path : null;
 
-      // Validate required fields
-      if (!studentId || !studentName || !jobPostingId || !resume) {
-          return res.status(400).send({
-              message: 'Missing required fields: studentId, studentName, jobId, and resume are mandatory.',
-          });
-      }
-
-      // Check for existing application
-      const existingApplication = await applicationModel.findOne({ studentId, jobPostingId });
-      if (existingApplication) {
-          return res.status(409).send({
-              message: 'Application already exists for this job posting',
-          });
-      }
-
-      // Create new application
-      const newApplication = new applicationModel({
-        applicationId,
-          studentId,
-          studentName,
-          jobPostingId,
-          resume,
-          coverLetter,
-          status: status || 'pending', // Default to 'pending' if status is not provided
+    if (!studentId || !studentName || !jobPostingId || !resume) {
+      return res.status(400).send({
+        message: 'Missing required fields: studentId, studentName, jobPostingId, and resume are mandatory.',
       });
+    }
 
-      // Save the application to the database
-      await newApplication.save();
-
-      return res.status(201).send({
-          message: "Application created successfully",
-          data: newApplication
+    // Check if the application already exists
+    const existingApplication = await applicationModel.findOne({ studentId, jobPostingId });
+    if (existingApplication) {
+      return res.status(409).send({
+        message: 'Application already exists for this job posting',
       });
+    }
+
+    // Find the JobPortal by jobPostingId to get the jobPostId
+    const jobPortal = await jobModel.findOne({ jobPostingId });
+    if (!jobPortal) {
+      return res.status(404).send({
+        message: 'Job posting not found',
+      });
+    }
+
+    // Create new application with jobPostId
+    const newApplication = new applicationModel({
+      applicationId,
+      studentId,
+      studentName,
+      jobPostingId,
+      jobPostId: jobPortal._id,  // Add jobPostId
+      resume,
+      coverLetter,
+    });
+
+    await newApplication.save();
+
+    return res.status(201).send({
+      message: "Application created successfully",
+      data: newApplication,
+    });
   } catch (error) {
-      return res.status(500).send({
-          message: error.message || "Internal Server Error",
-          error
-      });
+    return res.status(500).send({
+      message: error.message || "Internal Server Error",
+      error,
+    });
   }
 };
+
 
 const getApplicationById= async(req,res)=>{
     try {
         const { studentId } = req.params;
         const application = await applicationModel.findOne({studentId})
-          .populate('jobPostingId','jobPostingId')  
+          .populate('jobPostId')  
           .exec();
         if (!application) {
           return res.status(404).send({
@@ -79,7 +86,30 @@ const getApplicationById= async(req,res)=>{
 const getAllApplications = async (req, res) => {
         try {
           const applications = await applicationModel.find({})
-            .populate('jobPostingId')  
+            .populate('jobPostId')  
+            .exec();
+          if (!applications || applications.length === 0) {
+            return res.status(404).send({
+              message: 'No applications found',
+            });
+          }
+      
+          res.status(200).json({
+            message: 'Applications retrieved successfully',
+            data: applications,
+          });
+        } catch (error) {
+          res.status(500).send({
+            message: error.message || 'Internal Server Error',
+            error,
+          });
+        }
+      };
+  
+const getApplicationsByCompany = async (req, res) => {
+        try {
+          const applications = await applicationModel.find({})
+            .populate('jobPostId')  
             .exec();
           if (!applications || applications.length === 0) {
             return res.status(404).send({
@@ -99,67 +129,10 @@ const getAllApplications = async (req, res) => {
         }
       };
 
-const updateStatus=async (req, res) => {
-
-  try {
-    const { applicationId } = req.params;
-    const { status } = req.body;
-    const updatedApplication = await applicationModel.findByIdAndUpdate(
-      applicationId,
-      { status },
-      { new: true }
-    );
-
-    if (!updatedApplication) {
-      return res.status(404).json({ error: 'Application not found' });
-    }
-
-    res.status(200).json({ success: true, application: updatedApplication });
-  } catch (error) {
-    console.error('Error updating application status:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-};
-const getApplicationsByCompany = async (req, res) => {
-  try {
-      const { jobPostingId } = req.params;
-
-      // Validate jobPostingId
-      if (!jobPostingId) {
-          return res.status(400).send({
-              message: 'jobPostingId is required.',
-          });
-      }
-
-      // Find applications by jobPostingId
-      const applications = await applicationModel.find({ jobPostingId })
-          .populate('studentId') 
-          .exec();
-
-      if (!applications || applications.length === 0) {
-          return res.status(404).send({
-              message: 'No applications found for this job posting',
-          });
-      }
-
-      // Send the applications data
-      res.status(200).json({
-          message: 'Applications retrieved successfully',
-          data: applications,
-      });
-  } catch (error) {
-      res.status(500).send({
-          message: error.message || 'Internal Server Error',
-          error,
-      });
-  }
-};
-
 
 export default{
     createApplication,
     getApplicationById,
     getAllApplications,
-    updateStatus,
     getApplicationsByCompany
 }
